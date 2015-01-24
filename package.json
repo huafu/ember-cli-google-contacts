@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-google-contacts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Use ember-data to retreive google contact thru the Google Client API",
   "directories": {
     "doc": "doc",
