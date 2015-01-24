@@ -9,9 +9,9 @@ export function initialize(container, application) {
 
   if (Ember.getWithDefault(ENV, 'social.google.autoLoad', true)) {
     application.deferReadiness();
-    container.lookup('service:google-contact').load().then(Ember.run(function () {
+    container.lookup('service:google-contact').load().then(function () {
       application.advanceReadiness();
-    }));
+    });
   }
 }
 
