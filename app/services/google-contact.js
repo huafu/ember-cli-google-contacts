@@ -39,12 +39,9 @@ export default Ember.Object.extend(Ember.Evented, {
    * @return {Promise}
    */
   load: function () {
-    var _this = this;
+    var _this = this, config = this._getConfig();
     return this._injectScript()
       .then(function () {
-        return _this._getConfig();
-      })
-      .then(function (config) {
         if (config.apiKey) {
           return new Ember.RSVP.Promise(function (resolve/*, reject*/) {
             gapi.client.setApiKey(config.apiKey);
@@ -80,7 +77,8 @@ export default Ember.Object.extend(Ember.Evented, {
    */
   signOut: function () {
     var _this = this;
-    return this._getConfig().then(function () {
+    this._checkGapi();
+    return new Ember.RSVP.Promise(function (resolve/*, reject*/) {
       /*return new Ember.RSVP.Promise(function (resolve, reject) {
        _this.one('didError', Ember.run.bind(null, reject));
        _this.one('didSignOut', Ember.run.bind(null, resolve));
@@ -91,8 +89,8 @@ export default Ember.Object.extend(Ember.Evented, {
         authToken:      null,
         authTokenOwner: null
       });
-      _this.trigger('didSignOut');
-      return _this;
+      Ember.run.next(_this, 'trigger', 'didSignOut');
+      resolve();
     });
   },
 
@@ -165,23 +163,33 @@ export default Ember.Object.extend(Ember.Evented, {
    *
    * @method _getConfig
    * @param {Array.<string>} [keys]
-   * @return {Promise}
+   * @return {Object}
    * @private
    */
   _getConfig: function (keys) {
     var config = Ember.getWithDefault(ENV, 'social.google', {});
-    if (typeof gapi === 'undefined') {
-      return Ember.RSVP.reject(new Error('Unable to find google contacts API library. You must load the service yourself with `#load()` async method first if you defined `social.google.autoLoad` to `false` in your `config/environment.js`'));
-    }
     if (config.clientId) {
       config = Ember.merge({
         scope:     'https://www.google.com/m8/feeds',
         client_id: config.clientId
       }, config);
-      return Ember.RSVP.resolve(keys ? Ember.getProperties(config, keys) : config);
+      return keys ? Ember.getProperties(config, keys) : config;
     }
     else {
-      return Ember.RSVP.reject(new Error('You must define `social.google.clientId` in your `config/environment.js`.'));
+      throw new Error('You must define `social.google.clientId` in your `config/environment.js`.');
+    }
+  },
+
+  /**
+   * Check if we have the `gapi` object defined
+   *
+   * @method _checkGapi
+   * @return {Promise}
+   * @private
+   */
+  _checkGapi: function () {
+    if (typeof gapi === 'undefined') {
+      throw new Error('Unable to find google contacts API library. You must load the service yourself with `#load()` async method first if you defined `social.google.autoLoad` to `false` in your `config/environment.js`');
     }
   },
 
@@ -194,17 +202,16 @@ export default Ember.Object.extend(Ember.Evented, {
    * @return {Promise}
    */
   _authorize: function (immediate) {
-    var _this = this;
-    return this._getConfig(['client_id', 'scope']).then(function (config) {
-      if (immediate) {
-        config.immediate = true;
-      }
-      return new Ember.RSVP.Promise(function (resolve, reject) {
-        _this.one('didError', Ember.run.bind(null, reject));
-        _this.one('didAuthorize', Ember.run.bind(null, resolve));
-        // ask for authorization
-        gapi.auth.authorize(config, _this.get('_authorizationHandler'));
-      });
+    var _this = this, config = this._getConfig(['client_id', 'scope']);
+    this._checkGapi();
+    if (immediate) {
+      config.immediate = true;
+    }
+    // ask for authorization
+    gapi.auth.authorize(config, _this.get('_authorizationHandler'));
+    return new Ember.RSVP.Promise(function (resolve, reject) {
+      _this.one('didError', Ember.run.bind(null, reject));
+      _this.one('didAuthorize', Ember.run.bind(null, resolve));
     });
   },
 
@@ -226,17 +233,17 @@ export default Ember.Object.extend(Ember.Evented, {
         if (oauth2Token.error === 'user_signed_out') {
           this.set('authToken', null);
           this.set('authTokenOwner', null);
-          this.trigger('didSignOut');
+          Ember.run.next(this, 'trigger', 'didSignOut');
         }
         else {
-          this.trigger('didError', new Error(oauth2Token.error));
+          Ember.run.next(this, 'trigger', 'didError', new Error(oauth2Token.error));
         }
       }
       else {
         // resolve with our service
         this.set('authToken', oauth2Token.access_token);
         this.set('authTokenOwner', null);
-        this.trigger('didAuthorize', oauth2Token);
+        Ember.run.next(this, 'trigger', 'didAuthorize', oauth2Token);
       }
     });
   }).readOnly()
