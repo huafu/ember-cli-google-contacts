@@ -11,6 +11,24 @@ has been implemented.
 
 ## Using
 
+* The plugin requires at least a Google client ID and optionally an API key:
+
+    ```js
+    // add this to the ENV hash of config/environment.js
+    social: {
+      google: {
+        clientId: 'xyz',
+        apiKey: 'abc' // optional
+        // if you want to load the library yourself with the `googleContactService.load()`,
+        // set this to false. If not set or truthy, it'll automatically load with your application
+        // autoLoad: true
+      }
+    }
+    ```
+    
+    You can get an API key and client ID for your project by creating a new Google project
+    [there](https://console.developers.google.com/)
+
 * Routes and controllers now get a `googleContactService` property, which you need to use in order
 to authenticate. Then you can use the store to retrieve the user's Google contacts.
 * To detect if the lib is authenticated, use `<some controller or route>.googleContactService.get('isAuthenticated')`
