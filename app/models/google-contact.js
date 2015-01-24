@@ -82,7 +82,7 @@ export default DS.Model.extend({
     authToken = this.get('authToken');
     if (authToken) {
       links = this.get('links');
-      photo = links.findBy('rel', 'edit-photo') || links.findBy('rel', 'photo');
+      photo = links.findBy('rel', 'photo') || links.findBy('rel', 'edit-photo');
       if (photo) {
         return photo.get('href') + '?access_token=' + authToken;
       }
