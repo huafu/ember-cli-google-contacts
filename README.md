@@ -59,6 +59,7 @@ failure:
     ```
     
     ```handlebars
+    {{! app/templates/contacts/list.hbs }}
     <ul class="list-group contacts">
       {{#each contact in model}}
         <li class="list-group-item">
