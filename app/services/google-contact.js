@@ -4,6 +4,8 @@ import ENV from '../config/environment';
 import parseContact from '../utils/google-contact/parse-contact';
 import parseNode from '../utils/google-contact/parse-node';
 
+var MAX_RESULTS = 10000;
+
 /**
  * @class GoogleContactService
  * @extends Ember.Object
@@ -104,21 +106,22 @@ export default Ember.Object.extend(Ember.Evented, {
    */
   fetchContacts: function (contactId) {
     var url = 'https://www.google.com/m8/feeds/contacts/default/full';
-    var _this = this;
+    var _this = this, params = {'max-results': MAX_RESULTS};
     if (contactId) {
       if (typeof contactId === 'string') {
         url += '/' + encodeURIComponent(contactId);
       }
       else {
-        url += Ember.$.param(contactId);
+        params = Ember.merge(params, contactId);
         contactId = null;
       }
     }
     return this.authorize(true).then(function (service) {
-      var authToken = service.get('authToken');
+      params.access_token = service.get('authToken');
+      params.alt = 'json';
       return new Ember.RSVP.Promise(function (resolve, reject) {
         Ember.$.ajax({
-          url:      url + '?access_token=' + authToken + '&alt=json',
+          url:      url + '?' + Ember.$.param(params),
           dataType: 'jsonp',
           success:  Ember.run.bind(null, function (data) {
             var owner = parseNode(data.feed.id);
@@ -211,7 +214,7 @@ export default Ember.Object.extend(Ember.Evented, {
     gapi.auth.authorize(config, _this.get('_authorizationHandler'));
     return new Ember.RSVP.Promise(function (resolve, reject) {
       _this.one('didError', Ember.run.bind(null, reject));
-      _this.one('didAuthorize', Ember.run.bind(null, resolve));
+      _this.one('didAuthorize', Ember.run.bind(null, resolve, _this));
     });
   },
 
