@@ -54,7 +54,7 @@ export default Ember.Object.extend(Ember.Evented, {
       return Ember.RSVP.resolve(this);
     }
     successLoad = function (resolve) {
-      Ember.run.bind(this, function () {
+      return Ember.run.bind(_this, function () {
         this.set('isLoaded', true);
         return resolve ? resolve(this) : this;
       });
