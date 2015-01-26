@@ -35,24 +35,41 @@ export default Ember.Object.extend(Ember.Evented, {
   isAuthenticated: Ember.computed.bool('authToken'),
 
   /**
+   * Whether the lib has been loaded or not
+   * @property isLoaded
+   * @type {boolean}
+   */
+  isLoaded: false,
+
+
+  /**
    * Load the service (get it ready)
    *
    * @method load
    * @return {Promise}
    */
   load: function () {
-    var _this = this, config = this._getConfig();
+    var _this = this, config = this._getConfig(), successLoad;
+    if (this.get('isLoaded')) {
+      return Ember.RSVP.resolve(this);
+    }
+    successLoad = function (resolve) {
+      Ember.run.bind(this, function () {
+        this.set('isLoaded', true);
+        return resolve ? resolve(this) : this;
+      });
+    };
     return this._injectScript()
       .then(function () {
         if (config.apiKey) {
           return new Ember.RSVP.Promise(function (resolve/*, reject*/) {
             gapi.client.setApiKey(config.apiKey);
             Ember.run.next(function () {
-              _this._authorize(true).then(resolve).catch(resolve);
+              _this._authorize(true).then(successLoad(resolve)).catch(successLoad(resolve));
             });
           });
         }
-        return _this._authorize(true).catch(Ember.K);
+        return _this._authorize(true).then(successLoad()).catch(successLoad());
       });
   },
 
