@@ -11,7 +11,7 @@ var MAX_RESULTS = 10000;
  * @extends Ember.Object
  * @uses Ember.Evented
  */
-export default Ember.Object.extend(Ember.Evented, {
+export default Ember.Service.extend(Ember.Evented, {
   /**
    * Google auth token
    * @property authToken
