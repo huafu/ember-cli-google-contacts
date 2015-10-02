@@ -67,7 +67,7 @@ export default DS.Model.extend({
    * @property anyEmail
    * @type {string}
    */
-  anyEmail: Ember.computed('emails.@each', function () {
+  anyEmail: Ember.computed('emails.[]', function () {
     var emails = this.get('emails');
     return emails.findBy('primary') || emails.findBy('address');
   }).readOnly(),
@@ -77,7 +77,7 @@ export default DS.Model.extend({
    * @property anyPhotoUrl
    * @type {}
    */
-  anyPhotoUrl: Ember.computed('links.@each', function () {
+  anyPhotoUrl: Ember.computed('links.[]', function () {
     var links, photo, authToken;
     authToken = this.get('authToken');
     if (authToken) {

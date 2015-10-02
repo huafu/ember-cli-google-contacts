@@ -52,5 +52,12 @@ export default DS.Adapter.extend({
    */
   findQuery: function (store, type, query/*, recordArray*/) {
     return this.googleContactService.fetchContacts(query);
+  },
+
+  /**
+   * Overriding for ember 1.13 to inherit new default reload behavior in prep for Ember 2
+   */
+   shouldReloadAll: function( store, snapshot) {
+     return !store.peekAll( snapshot.type.modelName ).length;
   }
 });

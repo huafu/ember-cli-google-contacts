@@ -71,7 +71,7 @@ failure:
         }
       },
       model: function () {
-        return this.store.find('google-contact');
+        return this.store.findAll('google-contact');
       }
     });
     ```
