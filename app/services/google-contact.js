@@ -147,7 +147,7 @@ export default Ember.Service.extend(Ember.Evented, {
               resolve(parseContact(data.feed.entry, owner));
             }
             else {
-              resolve(Ember.EnumerableUtils.map(data.feed.entry, function (entry) {
+              resolve(data.feed.entry.map(function(entry) {
                 return parseContact(entry, owner);
               }));
             }

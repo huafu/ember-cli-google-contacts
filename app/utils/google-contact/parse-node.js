@@ -39,11 +39,13 @@ export default function googleContactParseNode(node, key, transformers, defaultV
           value.rel = attrValue(value.rel);
         }
         if (transformers) {
-          Ember.EnumerableUtils.forEach(transformers, function (transformer, key) {
-            if (value[key] !== undefined) {
-              value[key] = transformer(value[key]);
+          for (var iT in transformers) {
+            for (var key in value) {
+              if (value[key] !== undefined) {
+               value[key] = transformers[iT](value[key]);
+              }
             }
-          });
+          }
         }
       }
     }
