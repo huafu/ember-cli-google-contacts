@@ -71,6 +71,9 @@ failure:
         }
       },
       model: function () {
+        // BEWARE - afterModel will return immediately (before promise resolves) in ember 1.13.6 - 1.13.10
+        // To avoid this behavior, use:
+        // return this.store.query('google-contact', {})
         return this.store.findAll('google-contact');
       }
     });
