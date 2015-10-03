@@ -19,7 +19,8 @@ export default DS.Transform.extend({
    * @inheritDoc
    */
   deserialize: function (serialized) {
-    return Ember.A(Ember.EnumerableUtils.map(serialized || [], Ember.run.bind(this, 'parser')));
+    var mappable = serialized || [];
+    return Ember.A(mappable.map(Ember.run.bind(this, 'parser')));
   },
 
   /**

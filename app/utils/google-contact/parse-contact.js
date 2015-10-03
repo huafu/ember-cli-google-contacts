@@ -14,7 +14,7 @@ function makeNodeArrayParser(key, dstKey, transformers) {
   }
   return function (node, contact) {
     var array = contact[dstKey || key] = [];
-    Ember.EnumerableUtils.forEach(Ember.getWithDefault(node, key, []), function (item) {
+    Ember.getWithDefault(node, key, []).forEach(function (item) {
       array.push(parseNode(item, subKey, transformers));
     });
   };
@@ -29,7 +29,7 @@ var PARSERS = [
   makeNodeArrayParser('category', 'categories', 'term'),
   makeNodeParser('title'),
   makeNodeArrayParser('link', 'links'),
-  makeNodeArrayParser('gd$email', 'emails', {primary: parseJson})
+  makeNodeArrayParser('gd$email', 'emails', {})
 ];
 
 /**
@@ -41,7 +41,7 @@ var PARSERS = [
  */
 export default function googleContactParseContact(contact, owner) {
   var parsed = {};
-  Ember.EnumerableUtils.forEach(PARSERS, function (parser) {
+  PARSERS.forEach(function (parser) {
     parser(contact, parsed);
   });
   parsed.owner = owner;
